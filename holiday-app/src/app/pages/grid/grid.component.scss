@@ -5,3 +5,20 @@
 .rounded-button {
     border-radius: 50%;
 }
+
+.table-container {
+    max-width: 90%;
+    margin: 0 auto; 
+    overflow-x: auto; 
+  }
+  
+  p-table {
+    width: 100%; 
+  }
+
+  .description-cell {
+    max-width: 200px; 
+    word-wrap: break-word; 
+    white-space: normal;
+  }
+  

@@ -1,9 +1,11 @@
-<p-table [value]="holidays" [paginator]="true" [rows]="10" [resizableColumns]="true" [scrollable]="true">
+<div class="table-container">
+  <p-table [value]="holidays" [paginator]="true" [rows]="10" [resizableColumns]="true" [scrollable]="true">
     <ng-template pTemplate="header">
       <tr>
         <th>Data</th>
         <th>Título</th>
         <th>Descrição</th>
+        <th>Datas Variáveis</th>
         <th>Ações</th>
       </tr>
     </ng-template>
@@ -11,7 +13,14 @@
       <tr>
         <td>{{ holiday.date }}</td>
         <td>{{ holiday.title }}</td>
-        <td>{{ holiday.description }}</td>
+        <td class="description-cell">{{ holiday.description }}</td>
+        <td>
+          <ul style="list-style-type: none; padding: 0;">
+            <li *ngFor="let variableDate of holiday.variableDates">
+              {{ variableDate.year }} - {{ variableDate.date }}
+            </li>
+          </ul>
+        </td>
         <td>
           <button pButton icon="pi pi-pencil" class="p-button-warning custom-button rounded-button" (click)="editHoliday(holiday)"></button>
           <button pButton icon="pi pi-trash" class="p-button-danger custom-button rounded-button" (click)="deleteHoliday(holiday.id)"></button>
@@ -19,18 +28,18 @@
       </tr>
     </ng-template>
   </p-table>
-  
-  <p-dialog header="Editar Descrição" [(visible)]="isDialogVisible" [modal]="true" [closable]="true">
-    <div class="p-fluid">
-      <div class="p-field">
-        <label for="description">Descrição</label>
-        <textarea id="description" rows="5" pInputTextarea [(ngModel)]="description"></textarea>
-      </div>
-      <div class="p-field">
-        <button pButton label="Salvar" icon="pi pi-check" class="custom-button" (click)="saveDescription()"></button>
-      </div>
+</div>
+
+<p-dialog header="Editar Descrição" [(visible)]="isDialogVisible" [modal]="true" [closable]="true">
+  <div class="p-fluid">
+    <div class="p-field">
+      <label for="description">Descrição</label>
+      <textarea id="description" rows="5" pInputTextarea [(ngModel)]="description"></textarea>
     </div>
-  </p-dialog>
-  
-  <p-toast></p-toast>
-  
+    <div class="p-field">
+      <button pButton label="Salvar" icon="pi pi-check" class="custom-button" (click)="saveDescription()"></button>
+    </div>
+  </div>
+</p-dialog>
+
+<p-toast></p-toast>
