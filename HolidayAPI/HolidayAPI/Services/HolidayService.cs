@@ -2,47 +2,79 @@ using HolidayAPI.DataContext;
 using HolidayAPI.Entities;
 using HolidayAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace HolidayAPI.Services
 {
   public class HolidayService
   {
+    private readonly ILogger<HolidayService> _logger;
     private readonly ApplicationDbContext _dbContext;
     private readonly HttpClient _httpClient;
 
-    public HolidayService(ApplicationDbContext dbContext, HttpClient httpClient)
+    public HolidayService(ILogger<HolidayService> logger, ApplicationDbContext dbContext, HttpClient httpClient)
     {
+      _logger = logger;
       _dbContext = dbContext;
       _httpClient = httpClient;
     }
 
     public async Task<List<HolidayDTO>> FetchAndSaveNationalHolidaysAsync(string apiUrl)
     {
+      var holidays = await GetHolidaysFromApi(apiUrl);
+      var holidayEntities = new List<Holiday>();
+
+      foreach (var holiday in holidays)
+      {
+        var existingHoliday = await _dbContext.Holidays
+            .FirstOrDefaultAsync(h => h.Title == holiday.Title && h.Description == holiday.Description);
+
+        if (existingHoliday == null)
+        {
+          var holidayEntity = CreateHolidayEntity(holiday);
+          holidayEntities.Add(holidayEntity);
+        }
+      }
+
+      if (holidayEntities.Any())
+      {
+        await SaveHolidaysAsync(holidayEntities);
+      }
+
+      return holidays;
+    }
+
+    private async Task<List<HolidayDTO>> GetHolidaysFromApi(string apiUrl)
+    {
       var response = await _httpClient.GetAsync(apiUrl);
       response.EnsureSuccessStatusCode();
 
       var json = await response.Content.ReadAsStringAsync();
-      var holidays = JsonConvert.DeserializeObject<List<HolidayDTO>>(json);
+      return JsonConvert.DeserializeObject<List<HolidayDTO>>(json);
+    }
 
-      var holidayEntities = holidays.Select(h => new Holiday
+    private Holiday CreateHolidayEntity(HolidayDTO holiday)
+    {
+      return new Holiday
       {
-        Date = h.Date,
-        Title = h.Title,
-        Description = h.Description,
-        Legislation = h.Legislation,
-        Type = h.Type,
-        VariableDates = h.VariableDates.Select(vd => new HolidayVariableDate
+        Date = holiday.Date,
+        Title = holiday.Title,
+        Description = holiday.Description,
+        Legislation = holiday.Legislation,
+        Type = holiday.Type,
+        VariableDates = holiday.VariableDates.Select(vd => new HolidayVariableDate
         {
           Year = int.Parse(vd.Key),
           Date = vd.Value
         }).ToList()
-      }).ToList();
+      };
+    }
 
+    private async Task SaveHolidaysAsync(List<Holiday> holidayEntities)
+    {
       _dbContext.Holidays.AddRange(holidayEntities);
       await _dbContext.SaveChangesAsync();
-
-      return holidays;
     }
 
     public async Task<List<Holiday>> GetAllHolidaysAsync()

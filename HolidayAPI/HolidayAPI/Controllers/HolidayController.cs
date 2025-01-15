@@ -19,6 +19,10 @@ namespace HolidayAPI.Controllers
     {
       try
       {
+        // O método FetchAndSaveNationalHolidaysAsync busca os dados de feriados nacionais da API externa.
+        // Para cada feriado retornado, ele verifica se já existe um feriado com o mesmo título e descrição no banco de dados.
+        // Caso o feriado já exista, ele não será adicionado novamente.
+        // Se o feriado não existir, ele será persistido no banco de dados.
         string apiUrl = "http://dadosbr.github.io/feriados/nacionais.json";
         var holidays = await _holidayService.FetchAndSaveNationalHolidaysAsync(apiUrl);
         return Ok(holidays);
