@@ -1,0 +1,66 @@
+# Compiled object files
+*.o
+*.obj
+
+# Logs
+*.log
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build directories
+bin/
+obj/
+
+# Visual Studio Code workspace settings
+.vscode/
+
+# Rider project files
+.idea/
+*.sln.iml
+
+# NuGet packages
+*.nupkg
+# Packages directory can be ignored when not using a package manager
+**/packages/
+# Uncomment if NuGet package restore is enabled
+# !**/packages/build/
+# !**/packages/repositories.config
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folders for temporary files
+$RECYCLE.BIN/
+
+# User-specific caches
+*.rsuser
+*.rsdf
+
+# Local history for JetBrains IDEs
+.idea/workspace.xml
+.idea/libraries/
+
+# ASP.NET Scaffolding files
+.scaffold
+
+# Mac files
+.DS_Store
+
+# Environment and build artifacts
+.env
+.env.*
+
+# Sensitive files
+secrets.json
+
+# Application insights local storage
+ApplicationInsights.config
+applicationinsights.json
+
+# Node modules for projects using JavaScript/TypeScript
+node_modules/

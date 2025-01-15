@@ -1,0 +1,6 @@
+# Normalize line endings
+* text=auto
+
+# Force specific line endings for certain files
+*.bat text eol=crlf
+*.sh text eol=lf
