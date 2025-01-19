@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace HolidayAPI.Services
 {
-  public class HolidayService
+  public class HolidayService : IHolidayService
   {
     private readonly ILogger<HolidayService> _logger;
     private readonly ApplicationDbContext _dbContext;
@@ -19,6 +19,54 @@ namespace HolidayAPI.Services
       _dbContext = dbContext;
       _httpClient = httpClient;
     }
+
+    #region Métodos do IService
+
+    public async Task<List<Holiday>> GetAllAsync()
+    {
+      return await _dbContext.Holidays.Include(h => h.VariableDates).ToListAsync();
+    }
+
+    public async Task<Holiday> GetByIdAsync(int id)
+    {
+      return await _dbContext.Holidays.Include(h => h.VariableDates).FirstOrDefaultAsync(h => h.Id == id);
+    }
+
+    public async Task<Holiday> CreateAsync(Holiday entity)
+    {
+      _dbContext.Holidays.Add(entity);
+      await _dbContext.SaveChangesAsync();
+      return entity;
+    }
+
+    public async Task<Holiday> UpdateAsync(int id, Holiday entity)
+    {
+      var holiday = await _dbContext.Holidays.FindAsync(id);
+      if (holiday == null) return null;
+
+      holiday.Title = entity.Title;
+      holiday.Description = entity.Description;
+      holiday.Date = entity.Date;
+      holiday.Legislation = entity.Legislation;
+      holiday.Type = entity.Type;
+
+      await _dbContext.SaveChangesAsync();
+      return holiday;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+      var holiday = await _dbContext.Holidays.Include(h => h.VariableDates).FirstOrDefaultAsync(h => h.Id == id);
+      if (holiday == null) return false;
+
+      _dbContext.Holidays.Remove(holiday);
+      await _dbContext.SaveChangesAsync();
+      return true;
+    }
+
+    #endregion
+
+    #region Métodos exclusivos de IHolidayService
 
     public async Task<List<HolidayDTO>> FetchAndSaveNationalHolidaysAsync(string apiUrl)
     {
@@ -77,16 +125,6 @@ namespace HolidayAPI.Services
       await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<Holiday>> GetAllHolidaysAsync()
-    {
-      return await _dbContext.Holidays.Include(h => h.VariableDates).ToListAsync();
-    }
-
-    public async Task<Holiday> GetHolidayByIdAsync(int id)
-    {
-      return await _dbContext.Holidays.Include(h => h.VariableDates).FirstOrDefaultAsync(h => h.Id == id);
-    }
-
     public async Task<Holiday> UpdateHolidayDescriptionAsync(int id, string newDescription)
     {
       var holiday = await _dbContext.Holidays.FindAsync(id);
@@ -97,14 +135,6 @@ namespace HolidayAPI.Services
       return holiday;
     }
 
-    public async Task<bool> DeleteHolidayAsync(int id)
-    {
-      var holiday = await _dbContext.Holidays.Include(h => h.VariableDates).FirstOrDefaultAsync(h => h.Id == id);
-      if (holiday == null) return false;
-
-      _dbContext.Holidays.Remove(holiday);
-      await _dbContext.SaveChangesAsync();
-      return true;
-    }
+    #endregion
   }
 }

@@ -7,11 +7,13 @@ namespace HolidayAPI.Controllers
   [ApiController]
   public class HolidayController : ControllerBase
   {
-    private readonly HolidayService _holidayService;
+    private readonly IHolidayService _holidayService;
+    private readonly string _apiUrl;
 
-    public HolidayController(HolidayService holidayService)
+    public HolidayController(IHolidayService holidayService, IConfiguration configuration)
     {
       _holidayService = holidayService;
+      _apiUrl = configuration["NationalHolidaysUrl"];
     }
 
     [HttpGet("dadosbr-feriados-nacionais")]
@@ -19,12 +21,7 @@ namespace HolidayAPI.Controllers
     {
       try
       {
-        // O método FetchAndSaveNationalHolidaysAsync busca os dados de feriados nacionais da API externa.
-        // Para cada feriado retornado, ele verifica se já existe um feriado com o mesmo título e descrição no banco de dados.
-        // Caso o feriado já exista, ele não será adicionado novamente.
-        // Se o feriado não existir, ele será persistido no banco de dados.
-        string apiUrl = "http://dadosbr.github.io/feriados/nacionais.json";
-        var holidays = await _holidayService.FetchAndSaveNationalHolidaysAsync(apiUrl);
+        var holidays = await _holidayService.FetchAndSaveNationalHolidaysAsync(_apiUrl);
         return Ok(holidays);
       }
       catch (Exception ex)
@@ -36,14 +33,14 @@ namespace HolidayAPI.Controllers
     [HttpGet]
     public async Task<IActionResult> GetAllHolidays()
     {
-      var holidays = await _holidayService.GetAllHolidaysAsync();
+      var holidays = await _holidayService.GetAllAsync();
       return Ok(holidays);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetHolidayById(int id)
     {
-      var holiday = await _holidayService.GetHolidayByIdAsync(id);
+      var holiday = await _holidayService.GetByIdAsync(id);
       if (holiday == null) return NotFound("Feriado não encontrado.");
       return Ok(holiday);
     }
@@ -62,7 +59,7 @@ namespace HolidayAPI.Controllers
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteHoliday(int id)
     {
-      var deleted = await _holidayService.DeleteHolidayAsync(id);
+      var deleted = await _holidayService.DeleteAsync(id);
       if (!deleted) return NotFound("Feriado não encontrado.");
       return NoContent();
     }

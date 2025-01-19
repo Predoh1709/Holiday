@@ -16,6 +16,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<HolidayService>();
 
+builder.Services.AddScoped<IHolidayService, HolidayService>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
