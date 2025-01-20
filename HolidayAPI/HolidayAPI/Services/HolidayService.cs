@@ -7,11 +7,12 @@ using Newtonsoft.Json;
 
 namespace HolidayAPI.Services
 {
-  public class HolidayService : IHolidayService
+  public class HolidayService : IHolidayService, IDisposable
   {
     private readonly ILogger<HolidayService> _logger;
     private readonly ApplicationDbContext _dbContext;
     private readonly HttpClient _httpClient;
+    private bool _disposed = false;
 
     public HolidayService(ILogger<HolidayService> logger, ApplicationDbContext dbContext, HttpClient httpClient)
     {
@@ -136,5 +137,25 @@ namespace HolidayAPI.Services
     }
 
     #endregion
+
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!_disposed)
+      {
+        if (disposing)
+        {
+          _dbContext.Dispose();
+          _httpClient.Dispose();
+        }
+
+        _disposed = true;
+      }
+    }
   }
 }
